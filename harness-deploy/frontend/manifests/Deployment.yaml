@@ -86,5 +86,7 @@ spec:
             name: {{lower .Values.name}}
         {{- end}}
         {{- end}}
+      {{- if .Values.nodeSelector}}
       nodeSelector:
-        cloud.google.com/gke-nodepool: deploy-pool
+{{ toYaml .Values.nodeSelector | indent 8 }}
+      {{- end}}
