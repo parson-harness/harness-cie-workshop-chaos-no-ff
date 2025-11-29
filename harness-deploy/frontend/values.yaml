@@ -18,3 +18,7 @@ sename: <+variable.username>
 # targetPort is where application is listening on inside the container.
 servicePort: 8080
 serviceTargetPort: 8080
+
+# Default nodeSelector for GKE deployments
+nodeSelector:
+  cloud.google.com/gke-nodepool: deploy-pool

@@ -1,106 +1,92 @@
 # Lab 1 - Build
 
-### Summary: Setup a CI Pipeline, including running source code tests, building the executable, building and pushing the artifact to a remote repository
+### Summary
+Setup a CI Pipeline, including running source code tests, building the executable, building and pushing the artifact to a remote repository
 
-### Outcome: A Deployable artifact
+### Outcome
+A Deployable artifact
 
 ### Learning Objective(s):
 
-- Configure a basic pipeline using Harness CIE
+- Configure a basic pipeline using Harness CI
 
-- Build and Deploy an artifact to a remote repository using Harness CIE
+- Build and Deploy an artifact to a remote repository using Harness CI
 
-- Run unit tests during the process to verify that the build is successful using Harness CIE
+- Run unit tests during the process to verify that the build is successful using Harness CI
 
 **Steps**
 
-1. From the left hand menu, navigate to **Projects** → **Select the project available**\
-   ![](https://lh7-us.googleusercontent.com/docsz/AD_4nXfhuMykMsIHl-7FjliWssHc0uwRpdLdrnq7GkGAI0g6UBZM69F1zpQ8ZA8N_vMqjpoGFYFR_weJk7OtOGGa2bksIaS6BlktwytmuJ1THM3e8O6tDT18HYWwFyGUye8ubsrHBChI8ORrCQ88JcKWpLjQ0DsXDS0NSZrkfZ4RUQ?key=cRG2cvp_PHVW0KG2Gq6Y_A)
+1. From the left hand menu, navigate to **Projects** → **Select the project available**
 
-1) From the left hand side menu select **Pipelines**
+    ![](https://lh7-us.googleusercontent.com/docsz/AD_4nXfhuMykMsIHl-7FjliWssHc0uwRpdLdrnq7GkGAI0g6UBZM69F1zpQ8ZA8N_vMqjpoGFYFR_weJk7OtOGGa2bksIaS6BlktwytmuJ1THM3e8O6tDT18HYWwFyGUye8ubsrHBChI8ORrCQ88JcKWpLjQ0DsXDS0NSZrkfZ4RUQ?key=cRG2cvp_PHVW0KG2Gq6Y_A)
 
-2) Click **+ Create a Pipeline**, enter the following values, then click **Start**
+2. From the left hand side menu select **Pipelines**
 
-| Field                                  | Value            | Notes
-| -------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------ |
-| Name                                   |workshop|                                                                                            |
-| How do you want to setup your pipeline |Inline| This indicates that Harness (rather than Git) will be the source of truth for the pipeline |
+3. Click **+ Create a Pipeline**, enter the following values, then click **Start**
 
-3. From Pipeline Studio, Click **Add Stage** and select **Build** as the Stage Type
+    | Field | Value | Notes |
+    | ----  | ----- | ----- |
+    | Name | workshop | *This is the name of the pipeline* |
+    | How do you want to setup your pipeline? | Inline | *This indicates that Harness (rather than Git) will be the source of truth for the pipeline* |
 
-4. Enter the following values and click on **Set Up Stage**
+4. From Pipeline Studio, Click **Add Stage** and select **Build** as the Stage Type
 
+5. Enter the following values and click on **Set Up Stage**
 
+    | Input | Value | Notes |
+    | ----  | ----- | ----- |
+    | Stage Name | Build | *This is the name of the stage* |
+    | Clone Codebase | Enabled | *This indicates that the codebase will be cloned* |
+    | Repository Name | harnessrepo | *This is the name of the repository* |
 
-| Input           | Value           | Notes |
-| --------------- | --------------- | ----- |
-| Stage Name      |Build|       |
-| Clone Codebase  |Enabled|       |
-| Repository Name |harnessrepo|       |
+6. There are two main tabs that need configuration:
+    1. **Infrastructure**
 
-5. There are two main tabs that need configuration:\
-   **Infrastructure**
+        | Input | Value | Notes |
+        | ----  | ----- | ----- |
+        | Infrastructure | Cloud | *Harness Cloud provides managed build infrastructure on demand* |
 
+    2. **Execution**
+        - Select **Add Step**, then **Add Step** again, then select **Test Intelligence** from the Step Library and configure with the following
 
+        | Input | Value | Notes |
+        | ----  | ----- | ----- |
+        | Name | Run Tests With Intelligence | *Test Intelligence speeds up test execution by running only the teststhat are relevant to the changes made in the codebase.* |
+        | Command | pip install pytest & cd ./python-tests | *The github repo is a monorepo with application(s) and configuration in the same repo. Therefore we need to navigate to the application subfolder.* |
 
-| Input          | Value | Notes |
-| -------------- | ----- | ----- |
-| Infrastructure |Cloud|       |
+        - After completing configuration select **Apply Changes** from the top right of the configuration popup
 
-**Execution**
+        - Select **Add Step**, then **Use template** (In this step we will be building the binary following same config as before. To avoid duplication of efforts a template has been precreated)
 
-- Select **Add Step**, then **Add Step** again, then select **Test Intelligence** from the Step Library and configure with the following
+        | Input | Value | Notes |
+        | ----- | ----- | ----- |
+        | Template Name | Compile Application | *This template provides us a reusable and standard way to build Angular applications* |
 
+        - Select the template and press **Use Template,** then provide a name for that template
 
+        | Input | Value | Notes |
+        | ----- | ----- | ----- |
+        | Name  | Compile | *Name of the template in the pipeline* |
 
-| Input                        | Value                                      | Notes                                                                                                                                             |
-| ---------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Name                         |Run Tests With Intelligence|                                                                                                                                                   |                                   |
-| Command                  |pip install pytest & cd ./python-tests| The github repo is a monorepo with application(s) and configuration in the same repo. Therefore we need to navigate to the application subfolder. |                                                                                                                 |
+        - Select **Add Step**, then **Add Step** again, then select **Build and Push an image to Docker Registry** from the Step Library and configure with the following
 
+        | Input | Value | Notes |
+        | ----- | ----- | ----- |
+        | Name  |Push to DockerHub | |
+        | Docker Connector | dockerhub | |
+        | Docker Repository | nikpap/harness-workshop | |
+        | Tags | <+variable.username>-<+pipeline.sequenceId> | *This will be the tag of the image using harness expressions. Click on the pin and select expression and paste the value* |
+        | **Optional Configuration** | | |
+        | Dockerfile | /harness/frontend-app/harness-webapp/Dockerfile |  *This tells harness where is the Dockerfile for building the app* |
+        | Context | /harness/frontend-app/harness-webapp | *This tells from where to run the instructions included in the dockerfile* |
 
+        - Click **Apply Changes** to close the config dialog
 
-- After completing configuration select **Apply Changes** from the top right of the configuration popup
+  7. Click **Save** and then click **Run** to execute the pipeline with the following inputs
 
-- Select **Add Step**, then **Use template** (In this step we will be building the binary following same config as before. To avoid duplication of efforts a template has been precreated)
-
-
-
-| Input         | Value               | Notes |
-| ------------- | ------------------- | ----- |
-| Template Name |Compile Application|       |
-
-- Select the  template and press **Use Template,** then provide a name for that template
-
-
-
-| Input | Value   | Notes |
-| ----- | ------- | ----- |
-| Name  |Compile|       |
-
-- Select **Add Step**, then **Add Step** again, then select **Build and Push an image to Docker Registry** from the Step Library and configure with the following
-
-
-
-| Input             | Value                                               | Notes                                                                    |
-| ----------------- | --------------------------------------------------- | ------------------------------------------------------------------------ |
-| Name              |Push to DockerHub|                                                                          |
-| Docker Connector  |dockerhub|                                                                          |
-| Docker Repository |nikpap/harness-workshop|                                                                          |
-| Tags              |<+variable.username>-<+pipeline.sequenceId>| This will be the tag of the image using harness expressions. Click on the pin and select expression and paste the value              |
-| **Optional  Configuration** |                                            |                                                                                                                                                   |
-| Dockerfile        |/harness/frontend-app/harness-webapp/Dockerfile| This tells harness where is the Dockerfile for building the app          |
-| Context           |/harness/frontend-app/harness-webapp| This tells from where to run the instructions included in the dockerfile |
-
-1. Click **Apply Changes** to close the config dialog
-
-6) Click **Save** and then click **Run** to execute the pipeline with the following inputs
-
-
-| Input       | Value | Notes        |
-| ----------- | ----- | ------------ |
-| Branch Name |main| prepopulated |
-
+     | Input | Value | Notes |
+     | ----- | ----- | ----- |
+     | Branch Name | main | *This is prepopulated* |
 
 # Lab 2 - DevSecOps
 
@@ -137,11 +123,9 @@
 
 9. Click **Save** and then click **Run** to execute the pipeline with the following inputs
 
-
-
-| Input       | Value | Notes |
-| ----------- | ----- | ----- |
-| Branch Name |main|       |
+   | Input | Value | Notes |
+   | ----- | ----- | ----- |
+   | Branch Name | main | |
 
 After the **Build and Push** stage is complete, go to the **Security Tests** tab to see the deduplicated, normalized and prioritized list of vulnerabilities discovered across your scanners.
 
@@ -168,11 +152,10 @@ After the **Build and Push** stage is complete, go to the **Security Tests** tab
 
 3. Enter the following values and click on **Set Up Stage**
 
-
-| Input           | Value          | Notes |
-| --------------- | -------------- | ----- |
-| Stage Name      |frontend|       |
-| Deployment Type |Kubernetes|       |
+   | Input | Value | Notes |
+   | ----- | ----- | ----- |
+   | Stage Name | frontend | |
+   | Deployment Type | Kubernetes | |
 
 4. Configure the **frontend** Stage with the following\
    **Service**
@@ -203,25 +186,25 @@ After the **Build and Push** stage is complete, go to the **Security Tests** tab
 
 **Environment**
 
-The target infrastructure has been pre-created for us. The application will be deployed to a k8s cluster on the given namespace  
+The target infrastructure has been pre-created for us. The application will be deployed to a GKE cluster on the given namespace  
 
 - Click **- Select -** on the **"Specify Environment"** input box 
 
 - Select **prod** environment and click **"Apply Selected"**
 
-| Input | Value | Notes                                                             |
-| ----- | ----- | ----------------------------------------------------------------- |
-| Name  |prod| Make sure to select the environment and infrastructure definition |
+   | Input | Value | Notes |
+   | ----- | ----- | ----- |
+   | Name | prod | *Make sure to select the environment and infrastructure definition* |
 
 - Click **- Select -** on the **"Specify Infrastructure"** input box
 
--  From the dropdown select k8s
+-  From the dropdown select GKE
 
 
 
 | Input | Value | Notes |
 | ----- | ----- | ----- |
-| Name  |k8s|       |
+| Name  |GKE|       |
 
 - Click **Continue** 
 
@@ -244,21 +227,19 @@ The target infrastructure has been pre-created for us. The application will be d
 
 6. Enter the following values and click on **Set Up Stage**
 
-
-| Input           | Value          | Notes |
-| --------------- | -------------- | ----- |
-| Stage Name      |backend|       |
-| Deployment Type |Kubernetes|       |
+   | Input | Value | Notes |
+   | ----- | ----- | ----- |
+   | Stage Name | backend | |
+   | Deployment Type | Kubernetes | |
 
 7. Configure the **backend** Stage with the following\
    **Service**
 
 - Click **- Select -**  on the **"Select Service"** input box and configure as follows:
 
-
-| Input | Value       | Notes |
-| ----- | ----------- | ----- |
-| Name  |backend|       |
+   | Input | Value | Notes |
+   | ----- | ----- | ----- |
+   | Name | backend | |
 
 - Click **Apply Selected** and then click **Continue** to go to the **"Environment"** tab
 
@@ -337,9 +318,9 @@ The target infrastructure has been pre-created for us and we used it in the prev
 1. Select the "Application Maps" tab
 2. Click on **Create New Application Map** and enter the following values
 
-| Input                        | Value|  
-| ---------------------------- | ------ |
-| Name                         |workshop-am|
+   | Input | Value |
+   | ----- | ----- |
+   | Name | workshop-am |
 
 4. Select the relevant services for your project name "use the search function to find the services"
 5. Click Save
@@ -360,9 +341,9 @@ Observe the auto generated experiments and run the **web-backend experiment**
 1. From the left hand menu, go to **Chaos Experiments**
 2. Select **+New Experiment**
 
-| Input                        | Value|  
-| ---------------------------- | ------ |
-| Name                         |pod-memory|
+   | Input | Value |
+   | ----- | ----- |
+   | Name | pod-memory |
 
 3. Select **Harness Infra**
 
@@ -373,10 +354,10 @@ Observe the auto generated experiments and run the **web-backend experiment**
  
 4. On the popup window select the available options
 
-| Input                        | Value|  
-| ---------------------------- | ------ |
-| Select Environment|prod|
-| Select Infrastructure|k8s|
+   | Input | Value |
+   | ----- | ----- |
+   | Select Environment | prod |
+   | Select Infrastructure | GKE |
 
 5. Click on next to navigate to the experiment builder
 6. Click on **Add Fault**
@@ -400,12 +381,12 @@ Observe the auto generated experiments and run the **web-backend experiment**
 
 9. From the navigation bar select **Tune Fault**
 
-| Input       | Value |
-| ----------- | ----- |
-| Total Chaos Duration |600|
-| Memory Consumption |300|
-| Number of workers |1|
-| Pod affected percentage|100|
+   | Input | Value |
+   | ----- | ----- |
+   | Total Chaos Duration | 600 |
+   | Memory Consumption | 300 |
+   | Number of workers | 1 |
+   | Pod affected percentage | 100 |
 
 10. Click on **Apply Changes** and then **Save**
 
@@ -432,12 +413,12 @@ Observe the auto generated experiments and run the **web-backend experiment**
 
 4. Add a **Verify** step with the following configuration
 
-| Input                        | Value  | Notes                                                                                            |
-| ---------------------------- | ------ | ------------------------------------------------------------------------------------------------ |
-| Name                         |Verify|                                                                                                  |
-| Continuous Verification Type |Canary|                                                                                                  |
-| Sensitivity                  |Low| This is to define how sensitive the ML algorithms are going to be on deviation from the baseline |
-| Duration                     |10mins|                                                                                                  |
+   | Input | Value | Notes |
+   | ----- | ----- | ----- |
+   | Name | Verify | |
+   | Continuous Verification Type | Canary | |
+   | Sensitivity | Low | *This is to define how sensitive the ML algorithms are going to be on deviation from the baseline* |
+   | Duration | 10mins | |
 
 5. Under the verify step click on the plus icon to add a new step in parallel
 
@@ -447,20 +428,19 @@ Observe the auto generated experiments and run the **web-backend experiment**
    
 6. Add a **chaos** step with the following configuration
 
-| Input                        | Value  |
-| ---------------------------- | ------ |
-| Name                         |Chaos|
-| Select Chaos Experiment |pod-memory|
-|  Expected Resilience Score|50| 
+   | Input | Value |
+   | ----- | ----- |
+   | Name | Chaos |
+   | Select Chaos Experiment | pod-memory |
+   | Expected Resilience Score | 50 | 
 
 7. Click on Apply Changes
 
 8. Click **Save** and then click **Run** to execute the pipeline with the following inputs. As a bonus, save your inputs as an Input Set before executing (see below)
 
-| Input       | Value | Notes       |
-| ----------- | ----- | ----------- |
-| Branch Name |main| Leave as is |
-
+   | Input | Value | Notes |
+   | ----- | ----- | ----- |
+   | Branch Name | main | *Leave as is* |
 
 # Lab 6 - Validate Release
 
@@ -549,14 +529,16 @@ Observe the auto generated experiments and run the **web-backend experiment**
 
 6. Configure the Approval step as follows
 
-| Input       | Value             | Notes |
-| ----------- | ----------------- | ----- |
-| Name        |Approval|       |
-| User Groups |All Project Users|       |
+   | Input | Value | Notes |
+   | ----- | ----- | ----- |
+   | Name | Approval | |
+   | User Groups | All Project Users | |
 
 7. In a similar way as before navigate to the “**backend**” stage
+
 8. Before the canary deployment block add **Harness Approval**
-10. Click **Save** and note that the save succeeds without any policy failure
+
+9. Click **Save** and note that the save succeeds without any policy failure
 
 
 # Lab 8 - Governance/Policy as Code (Advanced)
@@ -582,13 +564,13 @@ Observe the auto generated experiments and run the **web-backend experiment**
 
 6. Click **+ New Policy Set** and configure as follows
 
-| Input                      | Value                     | Notes |
-| -------------------------- | ------------------------- | ----- |
-| Name                       |Criticals Not Allowed|       |
-| Entity Type                |Custom|       |
-| Event Evaluation           |On Step|       |
-| Policy Evaluation Criteria |                           |       |
-| Policy to Evaluate         |Runtime OWASP CVEs|       |
+   | Input | Value | Notes |
+   | ----- | ----- | ----- |
+   | Name | Criticals Not Allowed | |
+   | Entity Type | Custom | |
+   | Event Evaluation | On Step | |
+   | Policy Evaluation Criteria | | |
+   | Policy to Evaluate | Runtime OWASP CVEs | |
 
 7. For the new policy set, toggle the **Enforced** button
 
@@ -603,11 +585,11 @@ Observe the auto generated experiments and run the **web-backend experiment**
 
 4. Before the **Rollout Deployment** Step Group, add a **Policy** type step and configure as follow
 
-| Input       | Value                                          | Notes                                                                                                                                                   |
-| ----------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Name        |Policy - No Critical CVEs|                                                                                                                                                         |
-| Entity Type |Custom|                                                                                                                                                         |
-| Policy Set  |Criticals Now Allowed| Make sure to select the Project tab in order to see your Policy Set                                                                                     |
-| Payload     |{"NODE\_OSS\_CRITICAL\_COUNT": _\<variable>_}| Set the field type to Expression, then replace _\<variable>_ with OWASP output variable CRITICAL. Go to a previous execution to copy the variable path. |
+   | Input | Value | Notes |
+   | ----- | ----- | ----- |
+   | Name | Policy - No Critical CVEs | |
+   | Entity Type | Custom | |
+   | Policy Set | Criticals Now Allowed | *Make sure to select the Project tab in order to see your Policy Set* |
+   | Payload | {"NODE_OSS_CRITICAL_COUNT": _\<variable>_} | *Set the field type to Expression, then replace _\<variable>_ with OWASP output variable CRITICAL. Go to a previous execution to copy the variable path.* |
 
 5. Save the pipeline and execute. Note that the pipeline fails at the policy evaluation step due to critical vulnerabilities being found by OWASP.
