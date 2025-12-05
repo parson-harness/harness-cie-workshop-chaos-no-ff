@@ -156,11 +156,12 @@ Extend your existing pipeline to take the artifact built in the CI/Build stage a
 ## Steps
 
 ![Select the pencil icon at the top right to edit the pipeline](images/lab3-edit-mode.png "Pipeline Edit Mode")
-> If you are in execution view, select the pencil icon at the top right to edit the pipeline
+
+> **Note:** If you are in execution view, select the pencil icon at the top right to edit the pipeline to take you back to Pipeline Studio
 
 1. In the existing pipeline, add a Deployment stage by clicking **Add Stage** and select **Deploy** as the Stage Type
 
-![Click on the plus icon to add a new stage](images/lab3-add-stage.png "Add Stage")
+![Click on the plus icon to add a new stage](images/lab3-deploy-stage.gif "Add Stage")
 
 2. Enter the following values and click on **Set Up Stage**
 
@@ -170,9 +171,11 @@ Extend your existing pipeline to take the artifact built in the CI/Build stage a
    | Deployment Type | Kubernetes | |
 
 3. Configure the **frontend** Stage with the following
-   
+
    ### Service
-   
+
+![Create the frontend service](images/lab3-frontend-svc.gif "Create Service")
+
    - Click **+Add Service** and configure as follows
 
    | Input | Value | Notes |
@@ -197,6 +200,9 @@ Extend your existing pipeline to take the artifact built in the CI/Build stage a
    - Click **Save** to close the service window and then click **Continue** to go to the Environment tab
 
    ### Environment
+
+![Add the environment](images/lab3-frontend-env.gif "Add Environment")
+
    The target infrastructure has been pre-created for us. The application will be deployed to a GKE cluster on the given namespace  
 
    - Click **- Select -** on the **"Specify Environment"** input box
@@ -253,6 +259,8 @@ Extend your existing pipeline to derisk production deployments
 
    - Click **Apply Selected** and then click **Continue** to go to the **"Environment"** tab
 
+![Canary Deployment](images/lab4-canary.gif "Canary Deployment")
+
    ### Environment
    The target infrastructure has been pre-created for us and we used it in the previous stage. To reuse the same environment
 
@@ -272,28 +280,110 @@ Extend your existing pipeline to derisk production deployments
      | ----------- | ----------------- | ----- |
      | Name        |Approval|       |
      | User Groups |All Project Users|     Select project to see the **"All Project Users"** option   |
+
 - Click **Apply Changes**
 
 4. Click **Save** and then click **Run** to execute the pipeline with the following inputs. As a bonus, save your inputs as an Input Set before executing (see below)
 
-| Input       | Value | Notes       |
-| ----------- | ----- | ----------- |
-| Branch Name |main| Leave as is |
+   | Input       | Value | Notes       |
+   | ----------- | ----- | ----------- |
+   | Branch Name |main| Leave as is |
 
 5. While the canary deployment is ongoing and waiting **approval** navigate to the web page and see if you can spot the canary (use the check release button) 
 
-| Project | Domain | Suffix |
-| ------- | ------ | ------ |
-| http\://project_id | .cie-bootcamp | .co.uk |
+   | Project | Domain | Suffix |
+   | ------- | ------ | ------ |
+   | http\:// {project_id} | .cie-bootcamp | .co.uk |
 
-![](https://lh7-us.googleusercontent.com/docsz/AD_4nXfmb1N3lAe0EOnEun9neU9y3ilqy3HbxfnWfUMzF3FsykslwgQfU_W4pE0wlt5kYSp6_mTs7cVP0anhJ7uvtsytal2qX3ZEq3vvOT3DOBUzE9SZ3rpwkAHP6e_ExdRbo5VmN2kpxdFlp6u8iGaKwhW_uyAohEmJurkjmEB2Ww?key=cRG2cvp_PHVW0KG2Gq6Y_A)
+![Canary Deployment](images/canary.png "I see the canary!")
 
 6. Approve the canary deployment for the pipeline to complete
 
-# TODO: IaCM Lab
+# Lab 5: Multicloud Deployments
+
 ## Summary
+Our SRE team wants to increase resiliency by adopting multi-cloud deployments. AWS EKS joins our GCP GKE deployment. Twice the clouds, twice the resilience, same amount of effort. (That last part is actually true.) The platform team has already created the EKS cluster for us, but we need to create a new namespace for our application.
+
 ### Learning Objective(s):
+
+- Managed Infrastructure as Code (IaCM) via templates and workspaces
+
+- Dynamic environment provisioning in the delivery pipeline
+
+- Multi-environment deployments with parallel execution
+
+- Configure environment-specific settings without duplicating services with Overrides
+
 ## Steps
+
+### Infrastructure as Code Management
+
+1. From the left navigation bar, expand **Infrastructure** and click on **Workspaces**
+
+2. Click on **Start with Template** and name it `{project-id}-workspace`
+
+3. Select the **IaCM Workspace Template** and click **Use Template**
+
+4. Click on the **Configuration** section. Review the pre-created workspace settings—our provisioner and repo containing the Terraform code has already been configured for us.
+
+5. Now click on **Connectors and Variables**. The name for the target namespace we will deploy to has been prepopulated with a default value.
+
+> **Note:** Any and all of these settings can be made editable by the template owners, giving flexibility where needed and standardization where warranted.
+
+### IaC Orchestration in the Pipeline
+
+1. Now let's head back to our pipeline. Click **Pipelines** from the top of the left navigation menu and select our **workshop** pipeline.
+
+2. Before our frontend deployment stage, add an **Infrastructure** stage, name it `Create K8s Namespace`, and click **Set Up Stage**.
+
+3. Click **Next** on the Infrastructure section—**Cloud** should already be selected for you.
+
+4. Select the workspace you just created: `{project-id}-workspace`
+
+5. Ensure the Provisioner is set to **OpenTofu** and the Operation is **Provision**, then click **Use Strategy**.
+
+6. Between the **plan** and **apply** steps, click the plus button and add an **IaCM Approval** step. Name it `IaCM Approval` and check the box for **Auto approve when the plan does not change**, then click **Apply Changes** at the top right.
+
+### Multi-Environment Deployment
+
+1. Click on the **frontend** stage and select the **Environment** tab.
+
+2. Flip the toggle **Deploy to multiple Environments or Infrastructures** to on and select **Apply Changes**.
+
+3. On the **Infrastructures** section, click on the box **Specify Infrastructures** and select `EKS`. Click **Apply Selected**.
+
+4. Save the pipeline.
+
+### Environment Overrides
+
+> **Note:** Our K8s manifest has GKE-specific properties which would cause our EKS deployment to fail. Let's override them.
+
+1. From the left navigation bar, expand the **Deployments** section and select **Overrides**.
+
+2. Select the **Service & Infrastructure Specific** section and then click on **New Override** and complete with the following:
+
+   | Input | Value |
+   | ----- | ----- |
+   | Environment | prod |
+   | Infrastructure | EKS |
+   | Service | frontend |
+   | Identifier | prod_frontend_eks |
+   | Code Source | Inline |
+
+3. Click on **New** beneath **Override Type** and select **Manifest**, then complete as follows:
+
+   | Input | Value |
+   | ----- | ----- |
+   | Manifest Type | Values YAML |
+   | YAML Store | Code |
+   | Manifest Identifier | EKS |
+   | Repository Name | harnessrepo |
+   | Branch | main |
+   | File Path | harness-deploy/values-eks.yaml |
+
+4. Click **Submit** and then on the checkmark on the right to apply changes.
+
+> **Bonus:** Repeat for the backend service and edit the backend stage to also include EKS as a deployment target.
 
 # TODO: Multicloud Lab
 ## Summary
