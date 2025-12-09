@@ -397,9 +397,13 @@ Our SRE team wants to increase resiliency by adopting multi-cloud deployments. A
 
 **2.** Flip the toggle **Deploy to multiple Environments or Infrastructures** to on and select **Apply Changes**.
 
-**3.** On the **Infrastructures** section, click on the box **Specify Infrastructures** and select `EKS`. Click **Apply Selected**.
+**3.** On the **Environments** section, check the box for **Deploy to Environments or Infrastructures in parallel?**
 
-**4.** Save the pipeline.
+![Deploy in parallel](images/lab5-parallel-deploy.png "Deploy in parallel")
+
+**4.** On the **Infrastructures** section, click on the box **Specify Infrastructures** and select `EKS`. Click **Apply Selected**.
+
+**5.** Save the pipeline.
 
 ![Multi-Environment Deployment](images/lab5-multi-env.gif "Multi-Environment Deployment")
 
@@ -438,6 +442,10 @@ Our SRE team wants to increase resiliency by adopting multi-cloud deployments. A
 
 ---
 
+> **Note:** As the pipeline is running, it will pause at the IaCM approval step, Navigate to the step and click on **Review** to see the proposed changes and approve them. Similarly, once the canary backend is deployed, navigate to the backend stage and approve the canary deployment.
+
+![IaCM Approval](images/lab5-iacm-approve.gif "IaCM Approval")
+
 # Lab 6 - Policy, Governance & Change Management
 
 ## Summary
@@ -453,11 +461,9 @@ You've built a pipeline that deploys across multiple clouds. Now the compliance 
 
 ### Policy as Code
 
-![Policy as Code](images/lab6-opa.gif "Policy as Code")
-
 **1.** At the bottom of the left navigation bar hover over **Project Settings** and select **Policies** from the expanded menu
 
-**2.** At the top right click on **Policies** and select **Approval Required Policy**
+**2.** At the top right click on **Policies** and select **Approval Required Policy** and review the policy
 
 **3.** Click on the **Select Input** button on the right and select these values from each dropdown:
 
@@ -474,13 +480,13 @@ You've built a pipeline that deploys across multiple clouds. Now the compliance 
 
 > **Note:** Since the policy checks that we have an approval before any deployment stage, it's expected that it failed. Failure is success! The policy is working as designed.
 
+![Policy as Code](images/lab6-opa.gif "Policy as Code")
+
 **6.** Let's now enforce it. Click on **Policy Sets** from the top right
 
 **7.** Click on the **Enforced** toggle to turn it on
 
 ### Governance in Action
-
-![Policy Violation](images/lab6-policy-violation.gif "Policy Violation")
 
 **1.** Head back over to our pipeline by selecting **Pipelines** from the left navigation menu
 
@@ -492,9 +498,9 @@ You've built a pipeline that deploys across multiple clouds. Now the compliance 
 
 > **Note:** As we expected, we are not allowed to save our pipeline until we've added an Approval. Let's fix it!
 
-### Approvals via ServiceNow Change Requests
+![Policy Violation](images/lab6-policy-violation.gif "Policy Violation")
 
-![ServiceNow Approval](images/lab6-add-approval.gif "ServiceNow Approval")
+### Approvals via ServiceNow Change Requests
 
 **1.** Hover before the **frontend** stage and click on the **+** icon that appears to add a new stage
 
@@ -516,52 +522,49 @@ You've built a pipeline that deploys across multiple clouds. Now the compliance 
 
 **8.** Save the pipeline. No violations this time, hooray for compliance!
 
-> **Bonus:** Add a step to update the ServiceNow ticket after the last step of the **backend** stage, indicating that we've successfully deployed to production. *Hint: there's a template already created.*
+![ServiceNow Approval](images/lab6-add-approval.gif "ServiceNow Approval")
+
+> **Bonus:** Add a step to close the ServiceNow ticket after the last step of the **backend** stage, indicating that we've successfully deployed to production. *Hint: there's a template already created.*
 
 ---
 
 # Lab 7 - Continuous Verification
 
 ## Summary
-Increase resiliency of applications by embedding chaos experiments into the delivery process and integrating with observability tools through continuous verification
+Canary deployments are great, but how do you know the canary is actually healthy? Continuous verification integrates with our observability tools and uses ML to compare metrics and logs against the baseline in real-time. No manual dashboard watching required. We'll also add chaos experiments to stress-test the deployment. If the canary survives intentional chaos, it's ready for production.
 
 ### Learning Objective(s):
-- Embed chaos experiments into deployment pipelines to validate canary releases
-- Add continuous verification to the deployed service
-- Automate release validation
+
+- Configure continuous verification to compare canary metrics against baseline using ML
+- Add chaos experiments to stress-test deployments during the canary phase
+- Automate go/no-go decisions based on real-time observability data
 
 ## Steps
 
-**1.** From the module selection menu select Continuous Delivery & GitOps
+**1.** Click on the **backend** deployment stage and hover over the **Approval** step. Delete it by clicking the **x**
 
-   ![Screenshot 2024-11-28 at 14 07 22](https://github.com/user-attachments/assets/898ee27b-7369-47c6-a145-e74b49bb4bed)
+**2.** Between the **Canary Deployment** and **Canary Delete** steps, click the **+** icon to add a new step
 
-   
-**2.** From the left hand side menu select pipelines and drill down to the existing pipeline
-
-**3.** In the existing pipeline, within the Deploy backend stage **after** Canary Deployment and **before** the approval step click on the plus icon to add a new step
-
-**4.** Add a **Verify** step with the following configuration
+**3.** Add a **Verify** step with the following configuration
 
    | Input | Value | Notes |
    | ----- | ----- | ----- |
    | Name | Verify | |
    | Continuous Verification Type | Canary | |
-   | Sensitivity | High | *This is to define how sensitive the ML algorithms are going to be on deviation from the baseline* |
+   | Sensitivity | High | _Defines how sensitive the ML algorithms are to deviation from the baseline_ |
    | Duration | 5mins | |
 
-**5.** Under the verify step click on the plus icon to add a new step in parallel
+**4.** Under the Verify step, click the **+** icon to add a new step **in parallel**
 
-   ![Screenshot 2024-11-28 at 14 28 38](https://github.com/user-attachments/assets/368ba808-d303-43f8-8824-5d2e09367b01)
+   ![Add Parallel Step](https://github.com/user-attachments/assets/368ba808-d303-43f8-8824-5d2e09367b01)
 
-   
-**6.** Add a **chaos** step with the following configuration
+**5.** Add a **Chaos** step with the following configuration
 
-   | Input | Value |
-   | ----- | ----- |
-   | Name | Chaos |
-   | Select Chaos Experiment | <project_name>-pod-memory |
-   | Expected Resilience Score | 50 | 
+   | Input | Value | Notes |
+   | ----- | ----- | ----- |
+   | Name | Chaos | |
+   | Select Chaos Experiment | <project_name>-pod-memory | _Select the existing experiment from the list_ |
+   | Expected Resilience Score | 50 | _Should already be populated for you_ |
 
 **7.** Next to the Approval step, click the X to delete the step from the pipeline. We no longer need a manual approval since we just added automated deployment validation.
 
