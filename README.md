@@ -8,7 +8,8 @@
 - [Lab 6 - Policy, Governance & Change Management](#user-content-lab-6---policy-governance--change-management)
 - [Lab 7 - Continuous Verification](#user-content-lab-7---continuous-verification)
 - [Lab 8 - Release Validation & Automatic Rollback](#user-content-lab-8---release-validation--automatic-rollback)
-- [Lab 9 - Governance/Policy as Code (Advanced)](#user-content-lab-9---governancepolicy-as-code-advanced)
+- [Lab 9 - Governance/Policy as Code (Optional)](#user-content-lab-9---governancepolicy-as-code-advanced)
+- [Lab 10 - Enhanced Change Management Automation (Optional)](#user-content-lab-10---enhanced-change-management-automation)
 
 <details>
   <summary><strong>Lab 1 - Build (Skip This Lab - Reference Only)</strong></summary>
@@ -554,11 +555,15 @@ Canary deployments are great, but how do you know the canary is actually healthy
    | Sensitivity | High | _Defines how sensitive the ML algorithms are to deviation from the baseline_ |
    | Duration | 5mins | |
 
-**4.** Under the Verify step, click the **+** icon to add a new step **in parallel**
+**4.** Within the Verify step configuration panel, select the **Advanced** tab and expand the **Failure Strategy** section. In the **Perform Action** configuration, change the behavior to **Rollback Stage**.
+
+![Automated rollback](images/lab7-automated-rollback.gif)
+
+**5.** Under the Verify step, click the **+** icon to add a new step **in parallel**
 
    ![Add Parallel Step](https://github.com/user-attachments/assets/368ba808-d303-43f8-8824-5d2e09367b01)
 
-**5.** Add a **Chaos** step with the following configuration
+**6.** Add a **Chaos** step with the following configuration
 
    | Input | Value | Notes |
    | ----- | ----- | ----- |
@@ -566,23 +571,17 @@ Canary deployments are great, but how do you know the canary is actually healthy
    | Select Chaos Experiment | <project_name>-pod-memory | _Select the existing experiment from the list_ |
    | Expected Resilience Score | 50 | _Should already be populated for you_ |
 
-**6.** Next to the Approval step, click the X to delete the step from the pipeline. We no longer need a manual approval since we just added automated deployment validation.
+**7.** Next to the Approval step, click the X to delete the step from the pipeline. We no longer need a manual approval since we just added automated deployment validation.
 
-**7.** Click on Apply Changes
+**8.** Click on Apply Changes
 
-**8.** Click **Save**
+**9.** Click **Save**
 
 ![CV and Chaos](images/lab7-cv-chaos.gif "CV and Chaos")
 
 ---
 
 # Lab 8 - Release Validation & Automatic Rollback
-
-# **TODO** if you think it's appropriate, have them switch to the "Rollback" view and add a close SNOW ticket with Failure step (it's a template)
-
-![Rollback view](images/lab8-rollback-view.png "Rollback view")
-
-![Rollback studio](images/lab8-rollback-studio.gif "Rollback studio")
 
 ## Summary
 Validate release using Continuous Verification
@@ -713,3 +712,31 @@ Create advanced policies to block critical CVEs and enforce security standards
    | Payload | {"NODE_OSS_CRITICAL_COUNT": _\<variable>_} | *Set the field type to Expression, then replace _\<variable>_ with OWASP output variable CRITICAL. Go to a previous execution to copy the variable path.* |
 
 **5.** Save the pipeline and execute. Note that the pipeline fails at the policy evaluation step due to critical vulnerabilities being found by OWASP.
+
+---
+
+# Lab 10 - Enhanced Change Management Automation
+
+### Summary
+Automate other manual change management tasks via Harness orchestration pipeline.
+
+### Learning Objective(s):
+
+- Configure a custom rollback process
+- Leverage step-level templates for other SNOW tasks
+
+**Steps**
+
+**1.** Navigate to the Edit mode of the Pipeline Studio.
+
+**2.** Click into the Deploy **backend** stage and toggle the Rollback view in the right corner.
+
+![Rollback view](images/lab8-rollback-view.png "Rollback view")
+
+**3.** Click the '+' button at the end of the pipeline to add a new step and select **Use Template**.
+
+**4.** Select the ServiceNow Close Failed template and give it a name - Close Failed Ticket.
+
+**5.** Apply the changes and Save the pipeline. 
+
+![Rollback studio](images/lab8-rollback-studio.gif "Rollback studio")
