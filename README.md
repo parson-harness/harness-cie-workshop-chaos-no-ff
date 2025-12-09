@@ -573,6 +573,7 @@ Canary deployments are great, but how do you know the canary is actually healthy
 **8.** Click **Save**
 
 ![CV and Chaos](images/lab7-cv-chaos.gif "CV and Chaos")
+
 ---
 
 # Lab 8 - Release Validation & Automatic Rollback
