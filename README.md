@@ -32,11 +32,11 @@ A Deployable artifact
 
 ## Reference Steps
 
-**1.** From the left hand menu, navigate to **Projects** → **Select the project available**
+**1.** From the Unified View left navigation bar, navigate to **Projects** → **Select the project available**
 
 ![](https://lh7-us.googleusercontent.com/docsz/AD_4nXfhuMykMsIHl-7FjliWssHc0uwRpdLdrnq7GkGAI0g6UBZM69F1zpQ8ZA8N_vMqjpoGFYFR_weJk7OtOGGa2bksIaS6BlktwytmuJ1THM3e8O6tDT18HYWwFyGUye8ubsrHBChI8ORrCQ88JcKWpLjQ0DsXDS0NSZrkfZ4RUQ?key=cRG2cvp_PHVW0KG2Gq6Y_A)
 
-**2.** From the left hand side menu select **Pipelines**
+**2.** From the Unified View left navigation bar select **Pipelines**
 
 **3.** Click **+ Create a Pipeline**, enter the following values, then click **Start**
 
@@ -183,8 +183,6 @@ Our artifact is built, scanned, and sitting in DockerHub. Time to deploy it. Ext
 
 **1.** In the existing pipeline, add a Deployment stage by clicking **Add Stage** and select **Deploy** as the Stage Type
 
-![Click on the plus icon to add a new stage](images/lab3-deploy-stage.gif "Add Stage")
-
 **2.** Enter the following values and click on **Set Up Stage**
 
    | Input | Value | Notes |
@@ -192,11 +190,11 @@ Our artifact is built, scanned, and sitting in DockerHub. Time to deploy it. Ext
    | Stage Name | frontend | |
    | Deployment Type | Kubernetes | |
 
+![Click on the plus icon to add a new stage](images/lab3-deploy-stage.gif "Add Stage")
+
 **3.** Configure the **frontend** Stage with the following
 
    ### Service
-
-![Create the frontend service](images/lab3-frontend-svc.gif "Create Service")
 
    - Click **+Add Service** and configure as follows
 
@@ -211,19 +209,19 @@ Our artifact is built, scanned, and sitting in DockerHub. Time to deploy it. Ext
    | Repository | harnessrepo | |
    | Branch | main | |
    | File/Folder Path | harness-deploy/frontend/manifests | |
-   | Values.yaml | harness-deploy/frontend/values.yaml | |
+   | Values.yaml | harness-deploy/frontend/values.yaml | _Click **Submit** to go back and continue configuration of the artifact source_ |
    | **Add Artifact Source** | | |
    | Artifact Repository Type | Docker Registry | |
    | Docker Registry Connector  |dockerhub | |
    | Artifact Source Identifier |frontend | |
    | Image Path | nikpap/harness-workshop |                                    |
-   | Tag | <+variable.username>-<+pipeline.sequenceId> | *Select value, then click on the pin and select expression and paste the value* |
+   | Tag | <+variable.username>-<+pipeline.sequenceId> | _Click on the purple "**Sigma**" icon to the right of the text box. A "Learn More" pop up will appear and block your view, click the "**x**" to exit it. Then select **Expression** from the dropdown and paste the value._ |
 
    - Click **Save** to close the service window and then click **Continue** to go to the Environment tab
 
-   ### Environment
+![Create the frontend service](images/lab3-frontend-svc.gif "Create Service")
 
-![Add the environment](images/lab3-frontend-env.gif "Add Environment")
+   ### Environment
 
    The target infrastructure has been pre-created for us. The application will be deployed to a GKE cluster on the given namespace  
 
@@ -250,6 +248,8 @@ Our artifact is built, scanned, and sitting in DockerHub. Time to deploy it. Ext
    - Select **Rolling** and click on **Use Strategy**, the frontend is a static application so no need to do canary.
 
    - **Save** the pipeline.
+
+![Add the environment](images/lab3-frontend-env.gif "Add Environment")
 
 ---
 # Lab 4 - Continuous Deployment - Backend
@@ -286,8 +286,6 @@ Frontend is done. Now for the backend, where things can actually break in expens
 
    - Click **Apply Selected** and then click **Continue** to go to the **"Environment"** tab
 
-![Canary Deployment](images/lab4-canary.gif "Canary Deployment")
-
    ### Environment
    - Click **- Select -** on the **"Specify Environment"** input box
 
@@ -320,16 +318,20 @@ Frontend is done. Now for the backend, where things can actually break in expens
 
 ![Canary Approval](images/harness-approval.png "Approve the Canary Deployment")
 
-- Click **Apply Changes**
+   - Click **Apply Changes** at the top right.
 
-**4.** Click **Save** and then click **Run** to execute the pipeline with the following inputs. As a bonus, save your inputs as an Input Set before executing (see below)
+**4.** Click **Save** and then click **Run** to execute the pipeline with the following inputs.
+
+> **Bonus**: save your inputs as an Input Set before executing
 
    | Input       | Value | Notes       |
    | ----------- | ----- | ----------- |
-   | backend_version | backend-v1 | Leave as is |
-   | Branch Name |main| Leave as is |
-   | Stage: frontend | frontend | Leave as is |
-   | Stage: backend | backend | Leave as is |
+   | backend_version | backend-v1 | _Leave as is_ |
+   | Branch Name |main| _Leave as is_ |
+   | Stage: frontend | frontend | _Leave as is_ |
+   | Stage: backend | backend | _Leave as is_ |
+
+![Canary Deployment](images/lab4-canary.gif "Canary Deployment")
 
 **5.** While the canary deployment is ongoing and waiting **approval** navigate to the web page and see if you can spot Captain Canary (use the Check Release button to refresh) 
 
@@ -368,7 +370,7 @@ Our SRE team wants to increase resiliency by adopting multi-cloud deployments. A
 
 **3.** Select the **IaCM Workspace Template** and click **Use Template**
 
-**4.** Click on the **Configuration** tab along the top of the Workspace dashboard. Review the pre-created workspace settings - our provisioner and repo containing the Terraform code has already been configured for us.
+**4.** Click on the **Configuration** tab along the top of the Workspace dashboard. Review the pre-created workspace settings - our provisioner (OpenTofu) and repo containing the Terraform code has already been configured for us.
 
 **5.** Now click on **Connectors and Variables**. The name for the target namespace we will deploy to has been prepopulated with a default value for your convenience.
 
@@ -378,7 +380,7 @@ Our SRE team wants to increase resiliency by adopting multi-cloud deployments. A
 
 ### IaC Orchestration in the Pipeline
 
-**1.** Now let's head back to our pipeline. Click **Pipelines** from the top of the left navigation menu and select our **workshop** pipeline.
+**1.** Now let's head back to our pipeline. Click **Pipelines** from the top of the Unified View left navigation bar and select our **workshop** pipeline.
 
 **2.** Before our frontend deployment stage, add an **Infrastructure** stage, name it `Create K8s Namespace`, and click **Set Up Stage**.
 
@@ -412,7 +414,7 @@ Our SRE team wants to increase resiliency by adopting multi-cloud deployments. A
 
 > **Note:** Our K8s manifest has GKE-specific properties which would cause our EKS deployment to fail. Let's override them.
 
-**1.** From the left navigation bar, expand the **Deployments** section and select **Overrides**.
+**1.** From the Unified View left navigation bar, expand the **Deployments** section and select **Overrides**.
 
 **2.** Select the **Service & Infrastructure Specific** section and then click on **New Override** and complete with the following:
 
@@ -462,7 +464,7 @@ You've built a pipeline that deploys across multiple clouds. Now the compliance 
 
 ### Policy as Code
 
-**1.** At the bottom of the left navigation bar hover over **Project Settings** and select **Policies** from the expanded menu
+**1.** At the bottom of the Unified View left navigation bar hover over **Project Settings** and select **Policies** from the expanded menu
 
 **2.** At the top right click on **Policies** and select **Approval Required Policy** and review the policy
 
@@ -489,7 +491,7 @@ You've built a pipeline that deploys across multiple clouds. Now the compliance 
 
 ### Governance in Action
 
-**1.** Head back over to our pipeline by selecting **Pipelines** from the left navigation menu
+**1.** Head back over to our pipeline by selecting **Pipelines** from the Unified View left navigation bar
 
 **2.** Let's make a small edit to our pipeline so we can save it. Click on the pencil icon next to the pipeline name
 
@@ -542,7 +544,7 @@ Canary deployments are great, but how do you know the canary is actually healthy
 
 ## Steps
 
-**1.** Click on the **backend** deployment stage and hover over the **Approval** step. Delete it by clicking the **x**
+**1.** Click on the **backend** deployment stage and hover over the **Approval** step. Delete it by clicking the **x**. We no longer need a manual approval since we we will add automated deployment validation next
 
 **2.** Between the **Canary Deployment** and **Canary Delete** steps, click the **+** icon to add a new step
 
@@ -571,11 +573,9 @@ Canary deployments are great, but how do you know the canary is actually healthy
    | Select Chaos Experiment | <project_name>-pod-memory | _Select the existing experiment from the list_ |
    | Expected Resilience Score | 50 | _Should already be populated for you_ |
 
-**7.** Next to the Approval step, click the X to delete the step from the pipeline. We no longer need a manual approval since we just added automated deployment validation.
+**7.** Click on Apply Changes
 
-**8.** Click on Apply Changes
-
-**9.** Click **Save**
+**8.** Click **Save**
 
 ![CV and Chaos](images/lab7-cv-chaos.gif "CV and Chaos")
 
@@ -584,16 +584,17 @@ Canary deployments are great, but how do you know the canary is actually healthy
 # Lab 8 - Release Validation & Automatic Rollback
 
 ## Summary
-Validate release using Continuous Verification
+This is where it all comes together. Watch the entire delivery pipeline flow from commit to production: automated infrastructure, ServiceNow approvals, canary deployments validated by ML-powered verification, and chaos experiments checking the resilience of your release. If something breaks, the pipeline rolls back automatically. No war rooms, only pizza parties.
 
 ### Learning Objective(s):
-- Use complex deployment strategies to reduce the blast radius
-- Add continuous verification to the deployed service
-- Automate release validation
-- Rollback unstable releases
+- Execute the full golden path pipeline end-to-end
+- Observe canary vs baseline traffic distribution in real-time
+- Approve ServiceNow change requests to progress deployments
+- Validate automated rollback if verification fails
 
 ### Outcomes
-- Force failure of continuous delivery validation using chaos engineering
+- Force failure of Continous Delivery validation using Chaos Engineering
+- Automated rollback of failed release to previous stable release.
 
 ## Steps
 
@@ -602,10 +603,10 @@ Validate release using Continuous Verification
 
    | Input | Value | Notes |
    | ----- | ----- | ----- |
-   | backend_version | backend-v2 | Leave as is |
-   | Branch Name | main | Leave as is |
-   | Stage: frontend | frontend | Leave as is |
-   | Stage: backend | backend | Leave as is |
+   | backend_version | backend-v2 | _Update from v1 to v2_ |
+   | Branch Name | main | _Leave as is_ |
+   | Stage: frontend | frontend | _Leave as is_ |
+   | Stage: backend | backend | _Leave as is_ |
 
 ![Screenshot](images/lab8-pick-v2.png)
 
@@ -640,14 +641,13 @@ Validate release using Continuous Verification
 ![](https://lh7-us.googleusercontent.com/docsz/AD_4nXdbAmEJ5zQPsKlw_nEknWvYo97pm5eWCXr6vU8-GgIL0ulAOSH9N07PoEcVSknARVQo7Tgj1s31VHqR1I3hu2dMIO1rIX5HHcmTPXoQPoyo8CPv13OhnJN5WVcZqSwUXzdDHmm3PxUnhtpGVl0PAMJ_1wnuodvUbVPBOdnGKQ?key=cRG2cvp_PHVW0KG2Gq6Y_A)
 ![](https://lh7-us.googleusercontent.com/docsz/AD_4nXf-5oWX9OfvdmEb9MBm2_h2KKAa_QwmiJoM0fiKrTuxAr6GR4wxeulSlk48gyBK3dykrtIslDSkxpiGytrxH0JaxaQ4ZgTYxbmc8OenAH3nhGCvvOAxkWVjVBp1TRg_qQQi9z8OrNPK4udPtNL1LIyym6Ch5IMzrulFOcXhOQ?key=cRG2cvp_PHVW0KG2Gq6Y_A)
 
-**6.** Switch back to the Harness tab in your browser to observe the pipeline behavior. Note: it could take 5-7 minutes for the Continuous Verfiication process to complete. 
-- Validate the outcome of the verification on the pipeline execution details
+**6.** Switch back to the Harness tab in your browser to observe the pipeline behavior. 
 
 ---
 
 # Lab 9 - Governance/Policy as Code (Advanced)
 
-### Summary
+## Summary
 Create advanced policies to block critical CVEs and enforce security standards
 
 ### Learning Objective(s):
@@ -656,13 +656,13 @@ Create advanced policies to block critical CVEs and enforce security standards
 - Block deployments with critical CVEs
 - Integrate policy enforcement into pipelines
 
-**Steps**
+## Steps
 
 **1.** From the secondary menu, select **Project Settings** and select **Policies**
 
 **2.** Select the **Policies** tab 
 
-**3.** click **+ New Policy**, set the name to **Runtime OWASP CVEs** and click **Apply**
+**3.** Click **+ New Policy**, set the name to **Runtime OWASP CVEs** and click **Apply**
 
 **4.** Set the rego to the following and click **Save**
 
@@ -711,7 +711,7 @@ Create advanced policies to block critical CVEs and enforce security standards
 
 # Lab 10 - Enhanced Change Management Automation
 
-### Summary
+## Summary
 Automate other manual change management tasks via Harness orchestration pipeline.
 
 ### Learning Objective(s):
@@ -719,7 +719,7 @@ Automate other manual change management tasks via Harness orchestration pipeline
 - Configure a custom rollback process
 - Leverage step-level templates for other SNOW tasks
 
-**Steps**
+## Steps
 
 **1.** Navigate to the Edit mode of the Pipeline Studio.
 
