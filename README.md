@@ -610,13 +610,27 @@ Validate release using Continuous Verification
 
 ![Screenshot](images/lab8-pick-v2.png)
 
-**2.** While the canary deployment is ongoing navigate to the web page and see if you can spot the canary (use the check release button) 
+**2.** In the running pipeline, click on the **Create K8s Namespace** stage and you'll eventually see the pipeline is paused at the IACM Approval Step. Review the Open Tofu Plan output and approve it.
+
+![IaCM Approval](images/lab8-iacm-approval.gif "IaCM Approval")
+
+**3.** When the pipeline progresses after the IACM Approval, it will eventually pause again on the ServiceNow Approval stage. At this point, the orchestration pipeline automatically created the SNOW change record on behalf of the you (or the developer) and updated the ticket with the details needed for a release. No manual change records or manual governance needed. Let's simulate a release manager signing off on the implementation.
+
+Click on the **ServiceNow Approval** stage, click on the **Approval** step, and click on the change record hyperlink in the step details on the right to open the change record in a new window.
+
+Next, login to the SNOW sandbox instance with the name **workshopuser** and the same password you used to log in to the lab. Click the Implement button in the upper right corner. While you're there, observe the metadata provided by the pipeline. Click back to the Harness tab and observe the pipeline progressing once the change record was approved.
+
+![ServiceNow Approval](images/lab8-snow-approval.gif "ServiceNow Approval")
+
+**4.** While the canary deployment is ongoing navigate to the web page and see if you can spot the canary (use the check release button) 
 
    | project                | domain        | suffix |
    | ---------------------- | ------------- | ------ |
    | http\://\<project\_id> | .cie-bootcamp | .co.uk |
 
 - Validate that we've deployed the new version in the canary by checking the version is **backend-v2** and the Last Execution matches the **build Id** of your pipeline
+
+![Canary Verify](images/lab8-canary-verify-v2.gif "Canary Verify")
 
 ------
 **TODO** insert screenshot of canary with v2 and where to find the build Id
