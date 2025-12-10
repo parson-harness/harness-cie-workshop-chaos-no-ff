@@ -648,7 +648,7 @@ This is where it all comes together. Watch the entire delivery pipeline flow fro
 # Lab 9 - Governance/Policy as Code (Advanced)
 
 ## Summary
-Create advanced policies to block critical CVEs and enforce security standards
+Security scans are great. Blocking bad deployments is better. Write OPA policies that turn vulnerability findings into hard stops, ensuring critical CVEs never reach production.
 
 ### Learning Objective(s):
 
@@ -658,13 +658,13 @@ Create advanced policies to block critical CVEs and enforce security standards
 
 ## Steps
 
-**1.** From the secondary menu, select **Project Settings** and select **Policies**
+**1.** From the Unified View left navigation bar, scroll down and hover over to **Project Settings**. Select **Policies** from the expanded menu.
 
-**2.** Select the **Policies** tab 
+**2.** Select the **Policies** tab from the top right.
 
-**3.** Click **+ New Policy**, set the name to **Runtime OWASP CVEs** and click **Apply**
+**3.** Click **+ New Policy**, set the name to **Runtime OWASP CVEs** and click **Apply**.
 
-**4.** Set the rego to the following and click **Save**
+**4.** Set the rego to the following and click **Save**.
 
 <!---->
 
@@ -673,7 +673,7 @@ Create advanced policies to block critical CVEs and enforce security standards
        input.NODE_OSS_CRITICAL_COUNT != 0
     }
 
-**5.** Select the **Policy Sets** tab
+**5.** Now navigate to the **Policy Sets** tab from the top right.
 
 **6.** Click **+ New Policy Set** and configure as follows
 
@@ -682,42 +682,53 @@ Create advanced policies to block critical CVEs and enforce security standards
    | Name | Criticals Not Allowed | |
    | Entity Type | Custom | |
    | Event Evaluation | On Step | |
-   | Policy Evaluation Criteria | | |
-   | Policy to Evaluate | Runtime OWASP CVEs | |
+   | _Click **Continue**_ | | |
+   | Policy Evaluation Criteria | | _Select **+ Add Policy** near the bottom_ |
+   | Select a Policy | Runtime OWASP CVEs | _Check the box for the policy we just created and click **Apply**_ |
+   | What should happen if a policy fails? | Error and Exit | _Leave as is_ |
 
-**7.** For the new policy set, toggle the **Enforced** button
+**7.** Click **Finish**
+
+**8.** For the new Policy Set, toggle the **Enforced** button
 
 **Add Policy to Pipeline**
 
-**1.** Open your pipeline
+**1.** Head back to a previous execution of the pipeline by selecting **Executions** from Unified View left navigation bar.
 
-**2.** Go to an execution that already ran, and copy the CRITICAL output variable from the OWASP step like so:\
+**2.** Click on your most recent execution to open it and click on the **Build** stage.
+
+**3.** Select the **OWASP** step and click on the **Output** tab on the right of the screen.
+
+**4.** Scroll down until you see **CRITICAL** and hover over it until the copy icon appears, click to copy it as a Harness expression.
+
    ![](https://lh7-us.googleusercontent.com/docsz/AD_4nXfYQ7ba5Q_cQ9xy2AFVZ5Mt0iZPYbyQDmBonp0pBQA13Z_IUeYdK8gRSbddtf_V3bSRfbhKWDbRSUVJTx3BTCc_VmwLIWyWLkdh89nLh0sEBA6fqQxTy0NADZ0YPZwCirNycRVGUQACdItaBotovPs5Hg6CmRpQHk5ysgV6RUlhSbIbkNxmHAo?key=cRG2cvp_PHVW0KG2Gq6Y_A)
 
-**3.** Select the **frontend** stage
+**5.** Click on the pencil icon at the top right to go back to the pipeline studio and edit your pipeline.
 
-**4.** Before the **Rollout Deployment** Step Group, add a **Policy** type step and configure as follow
+**6.** Select the **frontend** stage. Before the **Rollout Deployment** Step Group, add a **Policy** type step and configure as follows:
 
    | Input | Value | Notes |
    | ----- | ----- | ----- |
    | Name | Policy - No Critical CVEs | |
    | Entity Type | Custom | |
    | Policy Set | Criticals Now Allowed | *Make sure to select the Project tab in order to see your Policy Set* |
-   | Payload | {"NODE_OSS_CRITICAL_COUNT": _\<variable>_} | *Set the field type to Expression, then replace _\<variable>_ with OWASP output variable CRITICAL. Go to a previous execution to copy the variable path.* |
+   | Payload | <+pipeline.stages.Build.spec.execution.steps.OWASP.output.outputVariables.CRITICAL> | _This is the value we copied from the previous execution. You can set the payload to **Expression** but it's not necessary as Harness will recognize the variable expression and set it automatically._ |
 
-**5.** Save the pipeline and execute. Note that the pipeline fails at the policy evaluation step due to critical vulnerabilities being found by OWASP.
+**5.** Save the pipeline and execute. (Keep an eye on execution to approve the ServiceNow approval gate)
+
+> **Note:** Expect the pipeline to fail at the policy evaluation step. The OWASP scan found critical vulnerabilities, and the policy we just created is doing its job blocking the release before it reaches production
 
 ---
 
 # Lab 10 - Enhanced Change Management Automation
 
 ## Summary
-Automate other manual change management tasks via Harness orchestration pipeline.
+Close the loop on failed releases. Configure rollback steps that automatically update ServiceNow when deployments fail
 
 ### Learning Objective(s):
 
-- Configure a custom rollback process
-- Leverage step-level templates for other SNOW tasks
+- Configure rollback-specific steps in deployment stages
+- Leverage step group templates for automation of complex workflows
 
 ## Steps
 
@@ -727,7 +738,7 @@ Automate other manual change management tasks via Harness orchestration pipeline
 
 ![Rollback view](images/lab8-rollback-view.png "Rollback view")
 
-**3.** Click the '+' button at the end of the pipeline to add a new step and select **Use Template**.
+**3.** Click the '**+**' button at the end of the pipeline to add a new step and select **Use Template**.
 
 **4.** Select the ServiceNow Close Failed template and give it a name - Close Failed Ticket.
 
