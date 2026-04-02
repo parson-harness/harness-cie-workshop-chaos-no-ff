@@ -46,6 +46,8 @@ This lab establishes the starting point of the software delivery lifecycle and e
 
 **5.** On the next screen, click the gear icon to configure the settings on this variable. Set the **Allowed Values** to `backend-v1` (click enter), then `backend-v2` and click **Save**. Then click **Apply Changes** to return to the blank canvas in the Pipeline Studio.
 
+![Custom Variable](images/lab1-ci-variable-fixed-vals.png "Custom Variable")
+
 **6.** From Pipeline Studio, Click **Add Stage** and select **Build** as the Stage Type
 
 **7.** Enter the following values and click on **Set Up Stage**
