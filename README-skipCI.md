@@ -1,6 +1,6 @@
 # Table of Contents
 
-- Lab 1 - Build (Skip this)
+- Lab 1 - Continuous Integration - Build (Skip this)
 - [Lab 2 - Continuous Deployment - Frontend (Start here)](#user-content-lab-2---continuous-deployment---frontend)
 - [Lab 3 - Continuous Deployment - Backend](#user-content-lab-3---continuous-deployment---backend)
 - [Lab 4 - Artifact Registry](#user-content-lab-4---artifact-registry)
@@ -11,9 +11,11 @@
 - [Lab 9 - Enhanced Change Management Automation (Optional)](#user-content-lab-9---enhanced-change-management-automation)
 
 <details>
-  <summary><strong>Lab 1 - Build (Skip This Lab - Reference Only)</strong></summary>
+  <summary><strong>Lab 1 - Continuous Integration - Build (Skip This Lab - Reference Only)</strong></summary>
 
 > **Note:** This lab has been pre-completed for you. We will walk through the configuration during the workshop introduction, but you will not need to create these steps. This pipeline is already set up and ready to use in subsequent labs.
+
+## Lab 1 - Continuous Integration - Build
 
 ## Summary
 Setup a CI Pipeline, including running source code tests, building the executable, and building and pushing the artifact to Harness Artifact Registry.
@@ -41,9 +43,15 @@ This lab establishes the starting point of the software delivery lifecycle and e
    | Name | workshop | *This is the name of the pipeline* |
    | How do you want to setup your pipeline? | Inline | *This indicates that Harness (rather than Git) will be the source of truth for the pipeline* |
 
-**4.** From Pipeline Studio, Click **Add Stage** and select **Build** as the Stage Type
+**4.** In Pipeline Studio, click **Variables** on the right to add a new custom variable called `backend_version`. Set the Value to Runtime Input and require it at runtime. Click **Save**. 
 
-**5.** Enter the following values and click on **Set Up Stage**
+![Custom Variable](images/lab1-ci-customvar.png "Custom Variable")
+
+**5.** On the next screen, click the gear icon to configure the settings on this variable. Set the **Allowed Values** to `backend-v1` (click enter), then `backend-v2` and click **Save**.
+
+**6.** From Pipeline Studio, Click **Add Stage** and select **Build** as the Stage Type
+
+**7.** Enter the following values and click on **Set Up Stage**
 
    | Input | Value | Notes |
    | ----  | ----- | ----- |
@@ -51,7 +59,7 @@ This lab establishes the starting point of the software delivery lifecycle and e
    | Clone Codebase | Enabled | *This indicates that the codebase will be cloned* |
    | Repository Name | harnessrepo | *This is the name of the repository* |
 
-**6.** There are **two** main tabs that need configuration:
+**8.** There are **two** main tabs that need configuration:
 
    ### Infrastructure
 
@@ -96,10 +104,11 @@ This lab establishes the starting point of the software delivery lifecycle and e
 
    - Click **Apply Changes** to close the config dialog
 
-**7.** Click **Save** and then click **Run** to execute the pipeline with the following inputs
+**9.** Click **Save** and then click **Run** to execute the pipeline with the following inputs
 
    | Input | Value | Notes |
    | ----- | ----- | ----- |
+   | backend_version | backend-v1 | *Select the runtime input value* |
    | Branch Name | main | *This is prepopulated* |
 
 </details>
