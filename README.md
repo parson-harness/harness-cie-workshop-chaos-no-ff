@@ -10,7 +10,7 @@
 - [Lab 8 - Automated Security Standards Enforcement](#user-content-lab-8---automated-security-standards-enforcement)
 - [Lab 9 - Enhanced Change Management Automation (Optional)](#user-content-lab-9---enhanced-change-management-automation)
 
-> **Note:** This lab has been pre-completed for you. We will walk through the configuration during the workshop introduction, but you will not need to create these steps. This pipeline is already set up and ready to use in subsequent labs.
+---
 
 # Lab 1 - Continuous Integration - Build
 
@@ -44,7 +44,7 @@ This lab establishes the starting point of the software delivery lifecycle and e
 
 ![Custom Variable](images/lab1-ci-customvar.png "Custom Variable")
 
-**5.** On the next screen, click the gear icon to configure the settings on this variable. Set the **Allowed Values** to `backend-v1` (click enter), then `backend-v2` and click **Save**.
+**5.** On the next screen, click the gear icon to configure the settings on this variable. Set the **Allowed Values** to `backend-v1` (click enter), then `backend-v2` and click **Save**. Then click **Apply Changes** to return to the blank canvas in the Pipeline Studio.
 
 **6.** From Pipeline Studio, Click **Add Stage** and select **Build** as the Stage Type
 
@@ -94,6 +94,7 @@ This lab establishes the starting point of the software delivery lifecycle and e
    | Name  |Push to Harness AR | |
    | Registry Type | Artifact Registry | |
    | Registry | har-<your_project_id> | *Replace with your actual Harness project ID (e.g., har-1234567890)* |
+   | Image Name | harness-workshop | |
    | Tags | <+variable.username>-<+pipeline.sequenceId> | *This will be the tag of the image using harness expressions. Click on the pin and select expression and paste the value* |
    | **Optional Configuration** | | |
    | Dockerfile | /harness/frontend-app/harness-webapp/Dockerfile |  *This tells harness where is the Dockerfile for building the app* |
